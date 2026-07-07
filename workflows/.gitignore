@@ -1,0 +1,13 @@
+build/
+dist/
+*.spec
+
+# Dati reali del tool — MAI su GitHub
+*_anonimizzato.txt
+*_ripristinato*
+*_residui_da_verificare.txt
+*_mappa_privata.json*
+*_report_privacy.json
+*mappa_fascicolo_privata.json*
+*report_fascicolo_privacy.json
+atto_originale.*
