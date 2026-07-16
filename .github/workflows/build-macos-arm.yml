@@ -14,34 +14,62 @@ jobs:
       - name: Scarica il repository
         uses: actions/checkout@v4
 
+      - name: Verifica runner Apple Silicon
+        run: |
+          uname -m
+          sw_vers
+
       - name: Installa Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           architecture: "arm64"
+          cache: "pip"
 
       - name: Installa le dipendenze
         run: |
           python -m pip install --upgrade pip
+
           if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
+            python -m pip install -r requirements.txt
           fi
-          pip install pyinstaller
+
+          python -m pip install pyinstaller
+
+      - name: Verifica file principale
+        run: |
+          test -f analizzatore_atti.py
+          ls -la
 
       - name: Crea applicazione macOS ARM
         run: |
-          pyinstaller \
+          python -m PyInstaller \
+            --clean \
+            --noconfirm \
             --windowed \
             --name "AnonimizzatoreAtti" \
             analizzatore_atti.py
 
-      - name: Verifica architettura
+      - name: Verifica applicazione e architettura
         run: |
-          file "dist/NomeProgramma.app/Contents/MacOS/AnonimizzatoreAtti"
+          test -d "dist/AnonimizzatoreAtti.app"
+
+          file \
+            "dist/AnonimizzatoreAtti.app/Contents/MacOS/AnonimizzatoreAtti"
+
+          ARCH="$(uname -m)"
+          echo "Architettura runner: $ARCH"
+
+          if [ "$ARCH" != "arm64" ]; then
+            echo "ERRORE: il runner non è Apple Silicon"
+            exit 1
+          fi
 
       - name: Comprimi applicazione
         run: |
-          ditto -c -k --sequesterRsrc --keepParent \
+          ditto -c -k \
+            --sequesterRsrc \
+            --keepParent \
             "dist/AnonimizzatoreAtti.app" \
             "AnonimizzatoreAtti-macOS-arm64.zip"
 
@@ -50,3 +78,4 @@ jobs:
         with:
           name: AnonimizzatoreAtti-macOS-arm64
           path: AnonimizzatoreAtti-macOS-arm64.zip
+          if-no-files-found: error
