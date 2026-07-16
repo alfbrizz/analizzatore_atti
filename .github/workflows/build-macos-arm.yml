@@ -1,0 +1,52 @@
+name: Build macOS Apple Silicon
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-macos-arm:
+    runs-on: macos-14
+
+    steps:
+      - name: Scarica il repository
+        uses: actions/checkout@v4
+
+      - name: Installa Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          architecture: "arm64"
+
+      - name: Installa le dipendenze
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+          pip install pyinstaller
+
+      - name: Crea applicazione macOS ARM
+        run: |
+          pyinstaller \
+            --windowed \
+            --name "NomeProgramma" \
+            main.py
+
+      - name: Verifica architettura
+        run: |
+          file "dist/NomeProgramma.app/Contents/MacOS/NomeProgramma"
+
+      - name: Comprimi applicazione
+        run: |
+          ditto -c -k --sequesterRsrc --keepParent \
+            "dist/NomeProgramma.app" \
+            "NomeProgramma-macOS-arm64.zip"
+
+      - name: Carica il risultato
+        uses: actions/upload-artifact@v4
+        with:
+          name: NomeProgramma-macOS-arm64
+          path: NomeProgramma-macOS-arm64.zip
