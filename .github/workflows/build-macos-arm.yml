@@ -32,21 +32,21 @@ jobs:
         run: |
           pyinstaller \
             --windowed \
-            --name "anonimizzatoreAtti" \
+            --name "AnonimizzatoreAtti" \
             analizzatore_atti.py
 
       - name: Verifica architettura
         run: |
-          file "dist/NomeProgramma.app/Contents/MacOS/NomeProgramma"
+          file "dist/NomeProgramma.app/Contents/MacOS/AnonimizzatoreAtti"
 
       - name: Comprimi applicazione
         run: |
           ditto -c -k --sequesterRsrc --keepParent \
-            "dist/NomeProgramma.app" \
-            "NomeProgramma-macOS-arm64.zip"
+            "dist/AnonimizzatoreAtti.app" \
+            "AnonimizzatoreAtti-macOS-arm64.zip"
 
       - name: Carica il risultato
         uses: actions/upload-artifact@v4
         with:
-          name: NomeProgramma-macOS-arm64
-          path: NomeProgramma-macOS-arm64.zip
+          name: AnonimizzatoreAtti-macOS-arm64
+          path: AnonimizzatoreAtti-macOS-arm64.zip
