@@ -16,16 +16,19 @@ jobs:
       - name: Checkout del codice
         uses: actions/checkout@v4
 
-      - name: Verifica file del progetto
+      - name: Mostra file disponibili
         run: |
           pwd
-          ls -la
+          find . -maxdepth 2 -type f | sort
+
+      - name: Verifica file necessari
+        run: |
           test -f analizzatore_atti.py
           test -f requirements-build.txt
 
-      - name: Verifica architettura Apple Silicon
+      - name: Verifica Apple Silicon
         run: |
-          uname -m
+          echo "Architettura: $(uname -m)"
           test "$(uname -m)" = "arm64"
 
       - name: Installa Python
@@ -34,12 +37,12 @@ jobs:
           python-version: "3.12"
           architecture: "arm64"
 
-      - name: Installa le dipendenze
+      - name: Installa dipendenze
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements-build.txt
 
-      - name: Compila eseguibile macOS ARM64
+      - name: Compila AnonimizzatoreAtti
         run: |
           python -m PyInstaller \
             --clean \
@@ -50,20 +53,20 @@ jobs:
             --collect-all pypdf \
             analizzatore_atti.py
 
-      - name: Verifica eseguibile
+      - name: Verifica risultato
         run: |
           test -f dist/AnonimizzatoreAtti
           file dist/AnonimizzatoreAtti
           lipo -archs dist/AnonimizzatoreAtti
 
-      - name: Comprimi eseguibile
+      - name: Crea archivio ZIP
         run: |
           ditto -c -k \
             --sequesterRsrc \
             dist/AnonimizzatoreAtti \
             AnonimizzatoreAtti-macOS-arm64.zip
 
-      - name: Carica come artifact
+      - name: Carica artifact
         uses: actions/upload-artifact@v4
         with:
           name: AnonimizzatoreAtti-macOS-arm64
