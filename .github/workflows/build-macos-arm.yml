@@ -32,8 +32,8 @@ jobs:
         run: |
           pyinstaller \
             --windowed \
-            --name "NomeProgramma" \
-            main.py
+            --name "anonimizzatoreAtti" \
+            analizzatore_atti.py
 
       - name: Verifica architettura
         run: |
